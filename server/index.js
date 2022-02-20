@@ -33,8 +33,8 @@ io.on("connection", (socket) => {
   });
 
   console.log("playersArryServer", playersArryServer.length);
-  socket.on("disconnect", () => {
-    console.log("user disconnected");
+  socket.on("disconnect", (socket) => {
+    console.log(`user disconnected : ${socket.id}`);
   });
 });
 
