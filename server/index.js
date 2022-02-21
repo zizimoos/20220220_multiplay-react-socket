@@ -14,13 +14,22 @@ const io = new Server(server, {
 });
 
 const playersArryServer = [];
+let coins = [];
+for (let i = 0; i < 20; i++) {
+  coins.push({ id: i, x: Math.random() * 800, y: Math.random() * 600 });
+}
 
 io.on("connection", (socket) => {
   console.log(`a user connected : ${socket.id}`);
 
-  socket.emit("init", { id: socket.id, playersArryServer: playersArryServer });
+  socket.emit("init", {
+    id: socket.id,
+    playersArryServer: playersArryServer,
+    coins,
+  });
 
   socket.on("new-player", (obj) => {
+    obj.id = socket.id;
     playersArryServer.push(obj);
     socket.broadcast.emit("new-player", obj);
   });
@@ -30,6 +39,13 @@ io.on("connection", (socket) => {
   });
   socket.on("stop-player", (dir) => {
     socket.broadcast.emit("stop-player", { id: socket.id, dir });
+  });
+
+  socket.on("destroy-coin", (id) => {
+    coins = coins.filter((i) => i.id !== id);
+    socket.broadcast.emit("destroy-coin", id);
+    const player = playersArryServer.find((p) => p.id === socket.id);
+    player.xp += 10;
   });
 
   console.log("playersArryServer", playersArryServer.length);
